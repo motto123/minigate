@@ -17,7 +17,8 @@ var ErrDataHeadLenShort = errors.New("codec: data head len is short")
 // Decoder 数据协议格式 Header(Type-Len)-Body(Data),Head必须是4个字节,Body最大64kb
 type Decoder struct {
 	buf *bytes.Buffer
-	//是否是组合包
+	//是否是组合包,叫如session.read要接收256bytes数据,可以使用[128]bytes接收2次传到Decoder中,
+	//Decoder可以自动把这2次的数据组合成一个packet
 	hasCombination bool
 	combinationLen int
 }
@@ -26,6 +27,7 @@ func NewDecoder() *Decoder {
 	return &Decoder{buf: bytes.NewBuffer(nil)}
 }
 
+// forward 不断的解析buffer中的数据
 func (d *Decoder) forward() (typ byte, len int, err error) {
 	if d.buf.Len() < headLen {
 		return 0, 0, ErrDataHeadLenShort

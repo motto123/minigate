@@ -1,9 +1,11 @@
 package base
 
 import (
+	"com.minigame.component/log"
 	"fmt"
 )
 
+//Framework 管理server的框架,打印panic信息到日志
 type Framework struct {
 	server Server
 }
@@ -23,9 +25,9 @@ func (fw *Framework) Run() {
 		str := fmt.Sprintf("err: %+v", err)
 		panic(str)
 	}
+	log.Infof("Server", "=========== end ============")
 
 	// 调用服务主循环函数
 	GoMain(fw.server.MainLoop)
 
-	println("------fw run")
 }

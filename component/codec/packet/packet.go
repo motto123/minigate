@@ -5,12 +5,11 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Type represents the network packet's type such as: handshake and so on.
 type Type byte
 
 const (
 	_ Type = iota
-	// Handshake represents a handshake: request(client) <====> handshake response(server)
+	// Handshake represents a handshake: (client) <====> handshake response(server)
 	Handshake = 0x01
 
 	// HandshakeAck represents a handshake ack from client to server
@@ -26,7 +25,6 @@ const (
 	Kick = 0x05 // disconnect message from server
 )
 
-// ErrWrongPacketType represents a wrong packet type.
 var ErrWrongPacketType = errors.New("wrong packet type")
 
 // Packet represents a network packet.
@@ -36,7 +34,6 @@ type Packet struct {
 	Data   []byte
 }
 
-//String represents the Packet's in text mode.
 func (p *Packet) String() string {
 	return fmt.Sprintf("Type: %d, Length: %d, Data: %v", p.Type, p.Length, p.Data)
 }

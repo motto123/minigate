@@ -60,6 +60,7 @@ func (s *AuthServer) loadConf() (err error) {
 }
 
 func (s *AuthServer) initGrpcClient() (err error) {
+	// TODO: 下一个版本,addr写入配置文件`
 	addr := "127.0.0.1:6701"
 	conn, err := grpc.Dial(addr, grpc.WithInsecure(), grpc.WithBlock())
 	if err != nil {

@@ -10,7 +10,7 @@ date: May 1th, 2022
 
 #### 1. 介绍
 
-​	多服务版的游戏框架，主要有gate服务，mq，多个业务服务，缓存，数据库，rabbitMQ
+​	分布式服务框架，主要有gate服务，mq，多个业务服务，缓存，数据库，rabbitMQ
 
 #### 2. 项目文件目录说明
 
@@ -21,6 +21,7 @@ date: May 1th, 2022
 ├── component    	公共组件
 │   ├── amqp   	 	队列
 │   ├── base     	server基础
+│   ├── codec     数据包解码和编译	
 │   ├── db      	数据和缓存
 │   └── log     	log通用日志，可以打印到屏幕和文件中，日志文件按天切割
 ├── debug.sh     	dlv启动脚本
@@ -49,7 +50,7 @@ date: May 1th, 2022
 │   └── hub
 ├── start.sh		重启server的脚本
 └── utils			工具
-    └── uuid
+└── user_table.sql	mysql建库建表语句
 
 ```
 

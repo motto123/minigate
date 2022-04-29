@@ -15,12 +15,15 @@ import (
 	"google.golang.org/protobuf/proto"
 )
 
+// handlerFunc 业务代码执行函数
 type handlerFunc func(s *BusinessServer, sid uint64, msg *message.Message,
 	ri *gate.ReceiveInfo) (reqMsg, respMsg proto.Message)
 
+// BusinessServer 业务服务使用的基础sever,提供mq subject的publish和router一套逻辑代码
 type BusinessServer struct {
 	BaseServer
-	decoder      *codec.Decoder
+	decoder *codec.Decoder
+	// 路由和业务函数map
 	handlerFuncM map[string]handlerFunc
 	isDebug      bool
 }
@@ -44,8 +47,11 @@ func (s *BusinessServer) SetIsDebug(b bool) {
 	s.isDebug = b
 }
 
+// ListenRouter 监听制定的exchange中的数据,routeKey对应gate中的route,
+// 把数据交给指定的路由对应的handlerFunc
 func (s *BusinessServer) ListenRouter(exchangeName string) {
 	go func() {
+		// 获取所有路由的名字
 		var routerKeys []string
 		for k, _ := range s.handlerFuncM {
 			routerKeys = append(routerKeys, k)
@@ -55,6 +61,7 @@ func (s *BusinessServer) ListenRouter(exchangeName string) {
 			return
 		}
 
+		// 监听这些路由的数据
 		err := s.MQConn.SubscribeFromTopic(s.Context, exchangeName, routerKeys, "",
 			func(delivery amqp.Delivery) {
 				defer func() {
@@ -80,6 +87,10 @@ func (s *BusinessServer) ListenRouter(exchangeName string) {
 					return
 				}
 
+				// 创建一个不包含router的message,这样可以不用解析传来的message中的路由,
+				// message.Encode时不对路由做任何处理，保持原样
+				// 为什么: 因为BusinessServer没有路由字典,不能对压缩路由进行解析,
+				//  TODO: 下个版本解决
 				msg := message.NewMessageAndUnchangedRoute()
 				err = msg.Decode(si.Body)
 				if err != nil {
@@ -91,6 +102,7 @@ func (s *BusinessServer) ListenRouter(exchangeName string) {
 					log.Errorf(tag, "s.handlerFuncM[key] failed, illegal route key")
 					return
 				}
+				// 执行handlerFnc,并打印日志
 				ri, isPanic := s.wrapHandlerFunc(delivery.RoutingKey, si.Sid, msg, h)
 				if isPanic {
 					return
@@ -154,6 +166,7 @@ func (s *BusinessServer) publishErrInfo(delivery amqp.Delivery, marshal []byte, 
 	//}
 }
 
+// RegisterRouter 注册路由和handlerFunc
 func (s *BusinessServer) RegisterRouter(routeKey string, handleFunc handlerFunc) {
 	s.handlerFuncM[routeKey] = handleFunc
 }
@@ -207,6 +220,8 @@ func (s *BusinessServer) generalReceiveInfoBytes(pkgType packet.Type, msg *messa
 	return
 }
 
+// DefaultErrProcess 测试模式返回err便于调试,正式模式只返回 code前端用proto转化成具体的错误信息,
+// 这样做可以缩小数据包的大小
 func (s *BusinessServer) DefaultErrProcess(rc *common.ResponseCode, err error) {
 	//rc.Err = rc.Code.String()
 	if !s.isDebug || err == nil {

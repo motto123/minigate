@@ -7,7 +7,6 @@ import (
 	"com.minigame.component/codec/packet"
 	"com.minigame.component/codec/router"
 	"com.minigame.component/log"
-	"com.minigame.proto/auth"
 	"com.minigame.proto/common"
 	"com.minigame.proto/gate"
 	"com.minigame.server.gate/session"
@@ -30,15 +29,22 @@ var tag = "GateServer"
 
 var Srv = new(GateServer)
 
+// GateServer 可以部署多个gate server,提高吞吐量,gate拥有管理 session,
+// 通过路由gate可以将用户request自动传给business server中的handlerFunc
+// 程序员只关心这个initRouter就行了,只要在 initRouter 中注册路由,business server中注册相同的路由，就可以实现业务功能
+// 为gate grpc 增加更多hander,可以让business server和gate sever有跟多的互动
 type GateServer struct {
 	base.BaseServer
-	conf       *config
-	IdGeneral  *snowflake.Node
+	conf      *config
+	IdGeneral *snowflake.Node
+	//注销session的channel
 	unregister chan uint64
-	send       chan *session.PostMsg
-	router     *router.Router
-	sessionM   *session.SyncClientMap
-	isDebug    bool
+	//接受session.read的数据channel
+	send chan *session.PostMsg
+	//路由
+	router   *router.Router
+	sessionM *session.SyncClientMap
+	isDebug  bool
 }
 
 func (s *GateServer) Init(*base.Framework) error {
@@ -63,6 +69,7 @@ func (s *GateServer) Init(*base.Framework) error {
 
 	s.sessionM = session.NewSyncSessionMap()
 	s.unregister = make(chan uint64, 0)
+	// TODO: 此处可优化,以免channel造成瓶颈
 	s.send = make(chan *session.PostMsg, 1024)
 	s.router = router.NewRouter()
 
@@ -75,11 +82,6 @@ func (s *GateServer) Init(*base.Framework) error {
 		return err
 	}
 	err = s.registerWs()
-	if err != nil {
-		return err
-	}
-
-	err = s.initClient()
 	if err != nil {
 		return err
 	}
@@ -116,7 +118,8 @@ func (s *GateServer) initSnowflakeId() error {
 }
 
 func (s *GateServer) registerGrpc() (err error) {
-	//address := "127.0.0.1:9989"
+	// 用于businessServer和gate互动使用
+	// 比如操作session
 	address := fmt.Sprintf("%s:%s", s.conf.Grpc.Ip, s.conf.Grpc.Port)
 	listen, err := net.Listen("tcp", address)
 	if err != nil {
@@ -202,23 +205,6 @@ func (s *GateServer) registerWs() (err error) {
 	return nil
 }
 
-func (s *GateServer) initClient() (err error) {
-	//authAddr := "127.0.0.1:9988"
-	//conn, err := grpc.Dial(authAddr, grpc.WithInsecure())
-	//if err != nil {
-	//	panic(err)
-	//}
-	//s.authCli = auth.NewAuthSrvClient(conn)
-	//
-	//emailAddr := "127.0.0.1:9989"
-	//conn, err = grpc.Dial(emailAddr, grpc.WithInsecure())
-	//if err != nil {
-	//	panic(err)
-	//}
-	//s.emailCli = email.NewEmailSrvClient(conn)
-	return
-}
-
 func (s *GateServer) serveWs(w http.ResponseWriter, r *http.Request) {
 	fmt.Println("websocket.Upgrader")
 	var upgrader = websocket.Upgrader{
@@ -241,6 +227,7 @@ func (s *GateServer) serveWs(w http.ResponseWriter, r *http.Request) {
 	s.sessionM.Store(id, newSession)
 }
 
+// unregisterRecv 统计处理session注销
 func (s *GateServer) unregisterRecv() {
 	go func() {
 		for {
@@ -261,6 +248,7 @@ func (s *GateServer) unregisterRecv() {
 
 }
 
+// sendRecv 所有session.read的数据都要通过mq传给businessServer中的具体handlerFunc处理
 func (s *GateServer) sendRecv() {
 	go func() {
 		for {
@@ -316,6 +304,7 @@ func (s *GateServer) sendRecv() {
 
 }
 
+// writeRecv businessServer中的handlerFunc处理结束后给session.write的数据
 func (s *GateServer) writeRecv() {
 	go func() {
 		handlerFunc := func(delivery amqp.Delivery) {
@@ -392,6 +381,7 @@ func (s *GateServer) writeRecv() {
 	}()
 }
 
+// initRouter  注册路由，用于自动压缩路由，还可以通过路由找到处理这个路由的handlerFunc所在的businessServer
 func (s *GateServer) initRouter() {
 	//s.router.AddRouteKV(rabbitmq.ExchangeAuth, rabbitmq.RouteLogin, 1)
 	//s.router.AddRouteKV(rabbitmq.ExchangeAuth, rabbitmq.RouteRegister, 2)
@@ -404,17 +394,7 @@ func (s *GateServer) initRouter() {
 
 }
 
-func (s *GateServer) bindUserDataForSession(data []byte, session2 session.Session) (err error) {
-	loginResp := new(auth.LoginResp)
-	err = proto.Unmarshal(data, loginResp)
-	if err != nil {
-		err = errors.WithStack(err)
-		return
-	}
-	session2.SetCustomData(loginResp.User.Id, loginResp.User.Nickname)
-	return
-}
-
+// generalResponseErr 生成通用的错误Response
 func (s *GateServer) generalResponseErr(session2 session.Session, msg *message.Message, err error) {
 	msg.ErasureDataInfoWithoutOther()
 	re := &gate.ResponseErr{Code: &common.ResponseCode{Code: common.Code_InternalError}}

@@ -14,6 +14,7 @@ import (
 )
 
 func loginHandler(s *base.BusinessServer, sid uint64, msg *message.Message, ri *gate.ReceiveInfo) (reqMsg, respMsg proto.Message) {
+	// start 每个handlerFunc固定的写法
 	var err error
 	req := new(auth.LoginReq)
 	resp := &auth.LoginResp{CodeInfo: &common.ResponseCode{Code: common.Code_InternalError}}
@@ -38,6 +39,8 @@ func loginHandler(s *base.BusinessServer, sid uint64, msg *message.Message, ri *
 		log.Errorf(tag, "proto.Unmarshal failed, err: %+v", err)
 		return
 	}
+
+	// end 每个handlerFunc固定的写法
 
 	if req.Account == "" || req.Password == "" {
 		resp.CodeInfo.Code = common.Code_InvalidParams

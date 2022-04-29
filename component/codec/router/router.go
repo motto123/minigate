@@ -10,6 +10,7 @@ const (
 	codeMax = 65536
 )
 
+// Router 自动压缩路由需要的字典
 type Router struct {
 	//route:exchange
 	exchanges map[string]string
@@ -26,7 +27,7 @@ func NewRouter() *Router {
 	}
 }
 
-// AddRouteKV 测试才能使用,正式环境不用使用
+// AddRouteKV 测试才能使用,正式环境不建议使用
 func (r *Router) AddRouteKV(exchangeName, routeName string, code uint16) bool {
 	if r.Len() >= codeMax {
 		fmt.Printf("AddRoute failed, becase routes len is large than codeMax %d\n", codeMax)
@@ -50,6 +51,8 @@ func (r *Router) AddRouteKV(exchangeName, routeName string, code uint16) bool {
 	return false
 }
 
+// AddRoute 自动生成routeName对应的code
+// exchangeName: 规定一个mq的exchange对应一个BusinessSever,这个数据只用于后端
 func (r *Router) AddRoute(exchangeName, routeName string) bool {
 	if r.Len() >= codeMax {
 		fmt.Printf("AddRoute failed, becase routes len is large than codeMax %d\n", codeMax)

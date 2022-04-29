@@ -5,6 +5,8 @@ import (
 	"github.com/pkg/errors"
 )
 
+// 初始化2个logger,terminal logger and file logger,可以选一个logger或者两个logger打印日志
+
 const (
 	TERM = "TERM"
 	FILE = "FILE"

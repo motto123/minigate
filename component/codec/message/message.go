@@ -72,6 +72,7 @@ type Message struct {
 	router      *router.Router
 }
 
+// NewMessage 创建普通的message
 func NewMessage(type1 Type, dataType DataType, id uint64, route string, data []byte, dataObjName string,
 	router *router.Router) *Message {
 	return &Message{
@@ -90,6 +91,7 @@ func NewMessageWithRouter(router *router.Router) *Message {
 	return NewMessage(0, 0, 0, "", nil, "", router)
 }
 
+// NewMessageAndNotCompressRoute 用于不处理压缩路由的message
 func NewMessageAndNotCompressRoute(type1 Type, dataType DataType, id uint64, route string, data []byte, dataObjName string) *Message {
 	return &Message{
 		Type:        type1,
@@ -103,15 +105,17 @@ func NewMessageAndNotCompressRoute(type1 Type, dataType DataType, id uint64, rou
 	}
 }
 
+// NewMessageAndUnchangedRoute 用于保持路由数据不变的message
 func NewMessageAndUnchangedRoute() *Message {
 	return &Message{}
 }
 
-// setAutoCompressed 是否自动压缩路由
+// setAutoCompressed 是否自动压缩路由,测试用
 func (m *Message) setAutoCompressed(b bool) {
 	m.compressed = b
 }
 
+// Decode binary to message format.
 // 压缩路由有3种状态,1压缩 2不压缩 3保持不变(被压缩,但是没有路由字典表)
 func (m *Message) Decode(data []byte) error {
 	if len(data) < flagLen {
@@ -173,7 +177,7 @@ func (m *Message) Decode(data []byte) error {
 	return nil
 }
 
-// Encode marshals message to binary format.
+// Encode message to binary format.
 // 压缩路由有3种状态,1压缩 2不压缩 3保持不变(被压缩,但是没有路由字典表)
 func (m *Message) Encode() ([]byte, error) {
 	if invalidType(m.Type) {

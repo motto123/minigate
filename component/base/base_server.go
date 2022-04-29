@@ -20,11 +20,14 @@ import (
 
 var tag = "BaseServer"
 
+//server的公共配置,包括初始化进程信息,log,各种数据库连接,队列连接
 type BaseServer struct {
 	Context context.Context
 	Fw      *Framework
 	conf    *config
-	Pro     Process
+	//进程信息
+	Pro Process
+	//配置读取
 	Vipper  *viper.Viper
 	RedisDb *redis.Client
 	MysqlDb *db.MysqlDb
@@ -85,7 +88,8 @@ func (s *BaseServer) Init(fw *Framework) error {
 		return err
 	}
 
-	log.Infof(tag, "[Server] started successful!!! \nprocess: %+v\nconf: %s\n", s.Pro, confStr)
+	log.Infof("Server", "=========== start ============")
+	log.Infof(tag, "[Server] process: %+v\nconf: %s\n", s.Pro, confStr)
 	return nil
 }
 

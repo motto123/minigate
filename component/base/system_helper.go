@@ -122,6 +122,7 @@ func GoMain(fun func()) {
 	select {}
 }
 
+// MainPanicToFile panic错误和stack输出到屏幕和日志中
 func MainPanicToFile(err interface{}, filePath string, pan bool) {
 	n, path1 := GetProcessNameAndPath()
 	dumpName := fmt.Sprintf("dump_%s_%d_%d_%d:%d_%d_%d", n, time.Now().Year(), time.Now().Month(), time.Now().Day(), time.Now().Hour(), time.Now().Minute(), time.Now().Second())
