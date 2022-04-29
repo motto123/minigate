@@ -1,0 +1,42 @@
+[server]
+version = "1.0.1"
+# 最大不超过1024,生成snowfakeId用
+node = 1
+# debug,release
+runningModel = "debug"
+
+[debug]
+isCheckHeartbeat = true
+isRecordHeartbeatLog = false
+
+
+[log]
+path = ""
+# TERM 输出到控制台,FILE 输出到文件,ALL 输入到控制台和文件中
+out = "ALL"
+
+
+
+[redis]
+addr = "127.0.0.1:6379"
+password = ""
+db = 0
+
+[mq]
+
+
+[tcp]
+ip = "127.0.0.1"
+port = "6601"
+
+[websocket]
+ip = "127.0.0.1"
+port = "6602"
+isWss = false
+#证书
+
+[grpc]
+ip = "127.0.0.1"
+port = "6701"
+
+

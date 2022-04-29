@@ -1,0 +1,26 @@
+syntax = "proto3";
+option go_package = "/common;common";
+
+package common;
+
+enum code {
+  //general
+  Ok = 0;
+  InternalError = 1;
+  InvalidParams = 2;
+  OperationFailed = 3;
+  NotFindData = 4;
+
+  //auth
+  UserExisting = 1001;
+  IncorrectAccountOrPassword = 1002;
+  //gate
+
+  //chat
+}
+
+message responseCode {
+  code code = 1;
+  string err = 2;
+}
+

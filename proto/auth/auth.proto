@@ -1,0 +1,45 @@
+syntax = "proto3";
+option go_package = "/auth;auth";
+
+package auth;
+
+import "common/response_code.proto";
+
+//enum code {
+//  Ok = 0;
+//  InternalError = 1;
+//  ParamsError = 2;
+//}
+
+message user {
+  int64 id = 1;
+  string nickname = 2;
+}
+
+message loginReq{
+  uint64 msgId = 1;
+  string account = 2;
+  string password = 3;
+}
+
+message loginResp {
+  common.responseCode codeInfo = 1;
+  int64 receiverId = 2;
+  user user = 3;
+}
+
+message registerReq {
+  uint64 msgId = 1;
+  string nickname = 2;
+  string account = 3;
+  string password = 4;
+}
+
+message registerResp{
+  common.responseCode  codeInfo = 1;
+  int64 id = 2;
+}
+
+//service AuthSrv {
+//  rpc login(loginReq) returns(loginResp);
+//}

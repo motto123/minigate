@@ -1,0 +1,18 @@
+syntax = "proto3";
+option go_package = "/common;common";
+
+package common;
+
+enum internalCode {
+  //general
+  Ok1 = 0;
+  InternalError1 = 1;
+  InvalidParams1 = 2;
+  OperationFailed1 = 3;
+  NotFindData1 = 4;
+
+  //auth
+  //gate
+
+  //chat
+}

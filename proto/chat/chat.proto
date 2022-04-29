@@ -1,0 +1,39 @@
+syntax = "proto3";
+option go_package = "/chat;chat";
+
+package chat;
+
+import "common/response_code.proto";
+
+message messageReq {
+  int64  msgId = 1;
+  string content = 2;
+  int64 senderUid = 4;
+  int64 receiverUid = 3;
+}
+
+message messageAck {
+  common.responseCode codeInfo = 1;
+  int64  msgId = 2; }
+
+message messageNotify {
+  int64  msgId = 1;
+  int64 senderUid = 2;
+  int64 receiverUid = 3;
+  string content = 4;
+}
+
+message receiveReq {
+  int64  msgId = 1;
+  int64 senderUid = 2;
+  int64 receiverUid = 3;
+}
+
+message receiveAck {
+  common.responseCode codeInfo = 1;
+  int64  msgId = 2;
+}
+
+message receiveNotify {
+  int64  msgId = 1;
+}

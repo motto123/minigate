@@ -1,0 +1,39 @@
+syntax = "proto3";
+option go_package = "/gate;gate";
+
+package gate;
+
+import "common/response_code.proto";
+import "common/internal_code.proto";
+import "auth/auth.proto";
+
+message sendInfo {
+  uint64  sid = 1;
+  bytes body = 2;
+}
+
+message receiveInfo {
+  repeated uint64  receiverSids = 1;
+  repeated int64  receiverUids = 2;
+  uint64 msgId = 3;
+  int32 msgType = 4;
+  bytes body = 5;
+}
+
+message responseErr {
+  common.responseCode code = 1;
+}
+
+message bindUserDataForSessionReq {
+  uint64 sid = 1;
+  auth.user user = 2;
+}
+
+message generalResp {
+  common.internalCode code = 1;
+
+}
+
+service GateSrv {
+  rpc bindUserDataForSession(bindUserDataForSessionReq) returns(generalResp);
+}
