@@ -10,7 +10,13 @@ date: May 1th, 2022
 
 #### 1. 介绍
 
-​	分布式服务框架，主要有gate服务，mq，多个业务服务，缓存，数据库，rabbitMQ
+- mini gate是一个轻量级的长连接服务框架,物联网等长连接服务,框架自身包含一套完整的路由体系和websock,tcp连接
+
+- 框架中封装了完整的gate服,业务服务基类(BusinessSerer),redis,mysql,rabbitMQ,日志,panic捕捉逻辑,docker,等一系列工具
+- 开发者只用关心业务服的实现,和gate服路由的注册,可以节省对公共逻辑开发的时间
+- 如果想让业务费A,业务服B...,gate进行一些内部联动,可使用grpc
+- example里有一个完整的demo实现login,register,chat功能
+- 主要使用的技术grpc,protobuf,rabbitMQ,rides,mysql,websocket,tpc
 
 #### 2. 项目文件目录说明
 
@@ -212,3 +218,12 @@ date: May 1th, 2022
 
 #### 6. 注意事项
 
+#### 7. 后续开发计划
+- [ ] 增加etcd服务发现
+- [ ] 修复项目内的小bug
+- [ ] 增加http连接
+
+#### 8. 感谢
+
+- 参考了大佬[nano](https://github.com/lonng/nano)的报文协议
+- 学习了大佬[zinx](https://github.com/aceld/zinx),[cellnet](https://github.com/davyxu/cellnet)思路
