@@ -10,7 +10,7 @@ date: May 1th, 2022
 
 #### 1. 介绍
 
-- mini gate是一个轻量级的长连接服务框架,物联网等长连接服务,框架自身包含一套完整的路由体系和websock,tcp连接
+- mini gate是一个轻量级的长连接服务框架,可用于im、游戏、物联网等需要使用长连接的场景,框架自身包含一套完整的路由体系和websock,tcp连接
 
 - 框架中封装了完整的gate服,业务服务基类(BusinessSerer),redis,mysql,rabbitMQ,日志,panic捕捉逻辑,docker,等一系列工具
 - 开发者只用关心业务服的实现,和gate服路由的注册,可以节省对公共逻辑开发的时间
